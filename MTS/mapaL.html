@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Title</title>
+		<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Arvo:400,700,400italic,700italic'  type='text/css'>
+		<link rel="stylesheet" href="style.css" type="text/css">
+		<link rel="stylesheet" href="leaflet.css" type="text/css">
+		<script type="text/javascript" src="tabletop.js"></script> 
+		<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+		<script type="text/javascript" src="libraryMapV2.js"></script>
+    </head>
+    <body>   
+
+		<div id="page">
+			<div id="container" class="" style="width: 100%;">
+				<div id="map" style="width:50%;height:50%"></div>
+				<div id="map2" style="width:50%;height:50%"></div>
+			</div>
+			</div>
+
+        <script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function() {
+				var URL = 'https://docs.google.com/spreadsheet/ccc?key=0AmnmVYhStAhLdER5aHk2cWk3ZWl2bnlybjJZalVxZ1E&single=true&gid=0&output=html';
+				var mymap = new MyMap({url: URL, mapDiv: 'map2'});
+				
+				var mymap2 = new MyMap({url: URL, mapDiv: 'map', callBackFunction: showInfo});
+				
+				function showInfo(data) {
+					alert("agora");
+					
+					mymap2.loadMarkers(data);
+				}
+			});
+        </script>
+    </body>
+</html>
