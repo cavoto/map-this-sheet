@@ -11,12 +11,13 @@ function MyMap(userOptions) {
 	
 	this.init = function(userOptions) 
 	{
+		//alert(userOptions.mapDiv);
 		this.extend(options, userOptions);
 		this.loadSpreadsheet();
 	};
     
 	this.loadSpreadsheet = function() {
-		this.mapObject = this.loadMap();
+		this.loadMap();
 			
 		if (options.callBackFunction != '') {
 			callback = options.callBackFunction;
@@ -42,7 +43,7 @@ function MyMap(userOptions) {
 		var brasil = new google.maps.LatLng(-14.264383, - 51.943359);
 		// Creating a map
 		choosedDiv = options.mapDiv;
-		map_obj = new google.maps.Map(document.getElementById(choosedDiv), {
+		mapObject = new google.maps.Map(document.getElementById(choosedDiv), {
 			zoom: 5,
 			center: brasil,
 			disableDefaultUI: true,
@@ -55,7 +56,6 @@ function MyMap(userOptions) {
 			}
 
 		});
-		return map_obj;
 	};
 	
 	this.loadMarkers = function(data)
@@ -64,7 +64,7 @@ function MyMap(userOptions) {
 		data.forEach(function (data) {
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(data.lat, data.lng),
-				map: this.map_obj,
+				map: mapObject,
 				title: data.title
 			});
 			if (data.icon !== "") {
