@@ -5,7 +5,11 @@ function MyMap(userOptions) {
 	var options = {
 		url: '',
 		mapDiv: 'map',
-		callBackFunction: ''
+		callBackFunction: '',
+		col_lat: 'lat',
+		col_lng: 'lng',
+		col_icon: 'icon',
+		col_title: 'name'
 		};
 	
 	
@@ -63,12 +67,12 @@ function MyMap(userOptions) {
 		this.sheetData = data;
 		data.forEach(function (data) {
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(data.lat, data.lng),
+				position: new google.maps.LatLng(data[options.col_lat], data[options.col_lng]),
 				map: mapObject,
-				title: data.title
+				title: data[options.col_title]
 			});
 			if (data.icon !== "") {
-				marker.setIcon(new google.maps.MarkerImage(data.icon));
+				marker.setIcon(new google.maps.MarkerImage(data[options.col_icon]));
 			}
 		});
 	};

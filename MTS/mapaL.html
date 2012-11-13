@@ -1,7 +1,6 @@
 <html>
     <head>
         <title>Title</title>
-		<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Arvo:400,700,400italic,700italic'  type='text/css'>
 		<link rel="stylesheet" href="style.css" type="text/css">
 		<link rel="stylesheet" href="leaflet.css" type="text/css">
 		<script type="text/javascript" src="tabletop.js"></script> 
@@ -25,7 +24,6 @@
 				var mymap2 = new MyMap({url: URL, mapDiv: 'map2', callBackFunction: showInfo});
 				
 				function showInfo(data) {
-					alert("agora");
 					
 					mymap2.loadMarkers(data);
 				}
