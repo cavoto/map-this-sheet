@@ -3,7 +3,7 @@ function MyMap(userOptions) {
 	var sheetData;
     var mapObject;
 	var options = {
-		url: '',
+		url: 'https://docs.google.com/spreadsheet/ccc?key=0AmnmVYhStAhLdER5aHk2cWk3ZWl2bnlybjJZalVxZ1E&single=true&gid=0&output=html',
 		mapDiv: 'map',
 		callBackFunction: '',
 		col_lat: 'lat',
@@ -15,7 +15,6 @@ function MyMap(userOptions) {
 	
 	this.init = function(userOptions) 
 	{
-		//alert(userOptions.mapDiv);
 		this.extend(options, userOptions);
 		this.loadSpreadsheet();
 	};
@@ -43,13 +42,12 @@ function MyMap(userOptions) {
 	};
 	
 	this.loadMap = function() {
-		//var saopaulo = new google.maps.LatLng(-23.548881, - 46.74408);
-		var brasil = new google.maps.LatLng(-14.264383, - 51.943359);
+		var saopaulo = new google.maps.LatLng(-23.548881, - 46.74408);
 		// Creating a map
 		choosedDiv = options.mapDiv;
 		mapObject = new google.maps.Map(document.getElementById(choosedDiv), {
 			zoom: 5,
-			center: brasil,
+			center: saopaulo,
 			disableDefaultUI: true,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			panControl: false,

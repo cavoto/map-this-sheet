@@ -1,4 +1,5 @@
 (function(global) {
+  "use strict";
 
   if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (obj, fromIndex) {
@@ -23,11 +24,9 @@
     Initialize with Tabletop.init('0AjAPaAU9MeLFdHUxTlJiVVRYNGRJQnRmSnQwTlpoUXc')
   */
 
-  "use strict";
-
   var Tabletop = global.Tabletop = function(options) {
     // Make sure Tabletop is being used as a constructor no matter what.
-    if(!this || this === global) {
+    if(!this || !(this instanceof Tabletop)) {
       return new Tabletop(options);
     }
 
@@ -43,6 +42,7 @@
     this.wait = !!options.wait;
     this.postProcess = options.postProcess;
     this.debug = !!options.debug;
+    this.query = options.query || '';
 
     /* Be friendly about what you accept */
     if(/key=/.test(this.key)) {
@@ -55,7 +55,7 @@
       return;
     }
 
-    this.log("Initializing with key %s", this.key);
+    this.log("Initializing with key " + this.key);
 
     this.models = {};
     this.model_names = [];
@@ -170,7 +170,8 @@
         // Only pull in desired sheets to reduce loading
         if( this.isWanted(data.feed.entry[i].content.$t) ) {
           var sheet_id = data.feed.entry[i].link[3].href.substr( data.feed.entry[i].link[3].href.length - 3, 3);
-          var json_url = "https://spreadsheets.google.com/feeds/list/" + this.key + "/" + sheet_id + "/public/values?alt=json-in-script";
+          var json_url = "https://spreadsheets.google.com/feeds/list/" + this.key + "/" + sheet_id + "/public/values?alt=json-in-script&sq=" + this.query;
+          this.log(json_url);
           toInject.push(json_url);
         }
       }
@@ -206,7 +207,8 @@
     loadSheet: function(data) {
       var model = new Tabletop.Model( { data: data, 
                                     parseNumbers: this.parseNumbers,
-                                    postProcess: this.postProcess } );
+                                    postProcess: this.postProcess,
+                                    tabletop: this } );
       this.models[ model.name ] = model;
       if(this.model_names.indexOf(model.name) == -1) {
         this.model_names.push(model.name);
@@ -223,13 +225,13 @@
     */
     doCallback: function() {
       if(this.sheetsToLoad === 0)
-        this.callback(this.data(), this);
+      this.callback.apply(this.callbackContext || this, [this.data(), this]);
     },
 
     log: function(msg) {
       if(this.debug) {
         if(typeof console !== "undefined" && typeof console.log !== "undefined") {
-            console.log(msg)
+          Function.prototype.apply.apply(console.log, [console, arguments]);
         }
       }
     }
@@ -249,6 +251,12 @@
     this.elements = [];
     this.raw = options.data; // A copy of the sheet's raw data, for accessing minutiae
 
+    if(typeof(options.data.feed.entry) === 'undefined') {
+      options.tabletop.log("Missing data for " + this.name + ", make sure you didn't forget column headers");
+      this.elements = [];
+      return;
+    };
+    
     for(var key in options.data.feed.entry[0]){
       if(/^gsx/.test(key))
         this.column_names.push( key.replace("gsx$","") );
