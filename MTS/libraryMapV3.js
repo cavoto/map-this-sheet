@@ -31,7 +31,6 @@ function MyMap(userOptions) {
 				},
 				simpleSheet: true
 			});
-
 		} else {
 			Tabletop.init({
 				key: options.url,
@@ -56,22 +55,41 @@ function MyMap(userOptions) {
 				style: google.maps.ZoomControlStyle.LARGE,
 				position: google.maps.ControlPosition.LEFT_CENTER
 			}
-
 		});
 	};
 	
 	this.loadMarkers = function(data)
 	{
 		this.sheetData = data;
+		counter = 0;
 		data.forEach(function (data) {
-			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(data[options.col_lat], data[options.col_lng]),
-				map: mapObject,
-				title: data[options.col_title]
-			});
-			if (data.icon !== "") {
-				marker.setIcon(new google.maps.MarkerImage(data[options.col_icon]));
-			}
+			setTimeout(function() {
+				var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(data[options.col_lat], data[options.col_lng]),
+						map: mapObject,
+						title: data[options.col_title],
+						animation: google.maps.Animation.DROP,
+						MTS: data
+					});
+					if (data.icon !== "") {
+						marker.setIcon(new google.maps.MarkerImage(data[options.col_icon]));
+					}
+					var infoBubble = new InfoBubble({
+						  shadowStyle: 1,
+						  padding: 0,
+						  borderRadius: 4,
+						  arrowSize: 10,
+						  borderWidth: 1,
+						  borderColor: '#2c2c2c',
+						  disableAutoPan: false,
+						  hideCloseButton: false
+						});
+					google.maps.event.addListener(marker, "click", function(){
+						
+						openMTSInfoWindow(infoBubble, marker, mapObject);
+					});
+				}, counter * 100);
+				counter++;
 		});
 	};
 	
@@ -93,4 +111,11 @@ function MyMap(userOptions) {
 		return this.sheetData;
 	};
 	this.init(userOptions);
+}
+
+function openMTSInfoWindow(infoBubble, marker, map)
+{
+	var html = Mustache.to_html(infoWindowTpl.text, marker.MTS);
+	infoBubble.setContent(html);
+	infoBubble.open(map, marker);
 }
