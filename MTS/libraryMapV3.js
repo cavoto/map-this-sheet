@@ -9,10 +9,11 @@ function MyMap(userOptions) {
 		col_lat: 'lat',
 		col_lng: 'lng',
 		col_icon: 'icon',
-		col_title: 'name'
+		col_title: 'name',
+		default_marker: 'images/marker.png'
 		};
 	
-	
+	var message;
 	this.init = function(userOptions) 
 	{
 		this.extend(options, userOptions);
@@ -56,6 +57,7 @@ function MyMap(userOptions) {
 				position: google.maps.ControlPosition.LEFT_CENTER
 			}
 		});
+		message = new MessageWindow(mapObject);
 	};
 	
 	this.loadMarkers = function(data)
@@ -73,6 +75,8 @@ function MyMap(userOptions) {
 					});
 					if (data.icon !== "") {
 						marker.setIcon(new google.maps.MarkerImage(data[options.col_icon]));
+					} else {
+						marker.setIcon(new google.maps.MarkerImage(options.default_marker));
 					}
 					var infoBubble = new InfoBubble({
 						  shadowStyle: 1,
@@ -85,8 +89,7 @@ function MyMap(userOptions) {
 						  hideCloseButton: false
 						});
 					google.maps.event.addListener(marker, "click", function(){
-						
-						openMTSInfoWindow(infoBubble, marker, mapObject);
+						openMTSInfoWindow(message, infoBubble, marker, mapObject);
 					});
 				}, counter * 100);
 				counter++;
@@ -112,10 +115,78 @@ function MyMap(userOptions) {
 	};
 	this.init(userOptions);
 }
+/* *************************/
 
-function openMTSInfoWindow(infoBubble, marker, map)
+function MessageWindow(map){
+  			  this.setMap(map);
+  			}
+			
+			MessageWindow.prototype = new google.maps.OverlayView();
+			MessageWindow.prototype.onAdd = function() {
+												this.$div_ = $('<div id="message">aksjdkasjdksjd</div>').appendTo(this.getPanes().floatPane);
+												this.$div_.hide();
+											}
+        MessageWindow.prototype.draw = function() {
+										  var me = this;
+										  var $div = this.$div_;
+										  var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+										  if (point) {
+												$div.css({ right: point.x, top: point.y});
+										  }
+										};
+        MessageWindow.prototype.remove = function() {
+          if (this.$div_) {
+            this.$div_.remove();
+            this.$div_ = null;
+          }
+        };
+		
+        MessageWindow.prototype.getPosition = function() {
+         return this.latlng_;
+        };
+        
+        var openTimeout;
+		
+        MessageWindow.prototype.open = function(marker) {
+											marker.setAnimation(google.maps.Animation.DROP);
+											marker.setZIndex(google.maps.Marker.MAX_ZINDEX);
+																					
+											clearTimeout(openTimeout);
+											var left = this.map.getBounds().getSouthWest().lat();
+											var right = this.map.getBounds().getNorthEast().lat();
+											var offset = (right - left) * .25;
+											var newCenter = new google.maps.LatLng(marker.position.lat(), marker.position.lng()+offset);
+											this.map.panTo(newCenter);
+											//$div = this.$div_.stop().css('opacity',1).hide().empty();
+											this.latlng_ = marker.position;
+											this.draw();
+											
+											var closeButton = $("<div class=\"icon ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-closethick\" /></div>").click(function(){ 
+																							$div.fadeOut(); 
+																					})
+																					.css({ top:'5px', right:'5px' });
+				conteudo = "<div class=\"azul\">" +  marker.title + "</div>"
+							+ "<div class=\"cinza_claro\"><span>Cidade: </span><span style=\"right:0px;\">" +  marker.cidade + "</span></div>"
+							+ "<div class=\"cinza_claro\">Site: <span class=\"site\"><a href=\"" +  marker.site + "\" target=\"_blank\">" +  marker.site + "</a></span></div>"
+							+ "<div class=\"cinza_claro\">Twitter: <span class=\"twitter\">" +  marker.twitter + "</span></div>"
+							+ "<div class=\"cinza_escuro\">FUTEBOL AMERICANO NO BRASIL</div>";
+				
+											
+											  this.$div_.show();
+										};
+										
+
+												
+function openMTSInfoWindow(message, infoBubble, marker, map)
 {
-	var html = Mustache.to_html(infoWindowTpl.text, marker.MTS);
-	infoBubble.setContent(html);
+	var content;
+	content = ich.infoWindowTpl(marker.MTS);
+	marker.setAnimation(google.maps.Animation.DROP);
+	marker.setZIndex(google.maps.Marker.MAX_ZINDEX);
+	//var newCenter = new google.maps.LatLng(marker.position.lat(), marker.position.lng()+0.5);
+	//map.panTo(newCenter);	
+	infoBubble.setContent(content[0]);
 	infoBubble.open(map, marker);
+	message.open(marker);
+	
 }
