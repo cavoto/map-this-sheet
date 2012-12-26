@@ -127,6 +127,9 @@ function MyMap(userOptions) {
         message = new MessageWindow(mapObject);
     };
 
+this.getMap = function () {
+	return mapObject;
+};
     this.loadMarkers = function (data) {
         this.sheetData = data;
         counter = 0;
